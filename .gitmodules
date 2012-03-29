@@ -30,3 +30,6 @@
 	url = https://github.com/groenewege/vim-less
 
 
+[submodule "bundle/detectindent"]
+	path = bundle/detectindent
+	url = https://github.com/ciaranm/detectindent.git

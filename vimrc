@@ -41,6 +41,9 @@ set smartindent
 set autoindent
 set cinkeys=0{,0},:,0#,!,!^F
 
+" Detect Indentation plugin
+:autocmd BufReadPost * :DetectIndent
+
 " autocomplete
 set omnifunc=csscomplete#CompleteCSS
 
