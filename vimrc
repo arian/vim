@@ -17,6 +17,8 @@ set nowrap
 set linebreak
 if has("gui_running")
 	set guifont=Ubuntu\ Mono\ 12
+	" disable gvim toolbar
+	set guioptions-=T
 endif
 
 " Searching: highlight results, search while typing, ignore case when only lowercase
@@ -37,9 +39,9 @@ set autoread
 set tabstop=4
 set shiftwidth=4
 set noexpandtab
-set smartindent
+"set smartindent (smartindent doesn't work with smartinput well)
 set autoindent
-set cinkeys=0{,0},:,0#,!,!^F
+"set cinkeys=0{,0},:,0#,!,!^F
 
 " Detect Indentation plugin
 :autocmd BufReadPost * :DetectIndent
