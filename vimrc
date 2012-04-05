@@ -3,9 +3,6 @@
 call pathogen#infect()
 
 " Syntax, Colorscheme and Gui Options
-syntax on
-set background=dark
-colorscheme monokai
 set number " line numbers
 set colorcolumn=80
 set ruler " Always show current positions along the bottom
@@ -15,10 +12,17 @@ set scrolloff=10
 " Disable wrapping by default
 set nowrap
 set linebreak
+
+" colors
+syntax on
+set background=dark
 if has("gui_running")
 	set guifont=Ubuntu\ Mono\ 12
 	" disable gvim toolbar
 	set guioptions-=T
+	colorscheme monokai
+else
+	colorscheme solarized
 endif
 
 " Searching: highlight results, search while typing, ignore case when only lowercase
@@ -54,7 +58,7 @@ set wildignore+=*.o,*.obj,.git,*.rbc,.hg,.svn,*.pyc,.vagrant,.gitignore,.DS_Stor
 
 
 " always switch to the current file directory
-set autochdir
+" set autochdir
 
 " share clipboard with the system
 set clipboard=unnamedplus
@@ -70,6 +74,8 @@ set backup
 set undofile
 
 " Save and restore vim session
-set sessionoptions=blank,buffers,curdir,folds,localoptions,resize,tabpages,winpos
-autocmd VIMEnter * :source ~/.vim/.session
-autocmd VIMLeave * :mksession! ~/.vim/.session
+if has("gui_running")
+	set sessionoptions=blank,buffers,curdir,folds,localoptions,resize,tabpages,winpos
+	autocmd VIMEnter * :source ~/.vim/.session
+	autocmd VIMLeave * :mksession! ~/.vim/.session
+endif
