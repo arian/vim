@@ -13,6 +13,9 @@ set scrolloff=10
 set nowrap
 set linebreak
 
+" spell checking
+set spell
+
 " colors
 syntax on
 set background=dark
