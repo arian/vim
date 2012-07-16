@@ -20,7 +20,10 @@ set spell
 syntax on
 set background=dark
 if has("gui_running")
-"	set guifont=Ubuntu\ Mono\ 12
+	" older ubuntu versions might not have this font
+	if substitute(system('lsb_release -rs'), '\n', '', '') == '12.04'
+		set guifont=Ubuntu\ Mono\ 12
+	endif
 	" disable gvim toolbar
 	set guioptions-=T
 	colorscheme monokai
