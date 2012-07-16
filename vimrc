@@ -20,7 +20,7 @@ set spell
 syntax on
 set background=dark
 if has("gui_running")
-	set guifont=Ubuntu\ Mono\ 12
+"	set guifont=Ubuntu\ Mono\ 12
 	" disable gvim toolbar
 	set guioptions-=T
 	colorscheme monokai
@@ -52,6 +52,12 @@ set autoindent
 
 " Detect Indentation plugin
 :autocmd BufReadPost * :DetectIndent
+
+" Folding
+set foldmethod=indent
+set foldlevelstart=99
+set foldnestmax=3
+set nofoldenable
 
 " autocomplete
 autocmd FileType php set omnifunc=phpcomplete#CompletePHP
