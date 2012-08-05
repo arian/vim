@@ -87,6 +87,18 @@ set undodir=~/.vim/undo
 set backup
 set undofile
 
+" Easy window navigation
+map <C-h> <C-w>h
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-l> <C-w>l
+
+" Disable arrow keys
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
+
 " Save and restore vim session
 if has("gui_running")
 	set sessionoptions=curdir,folds,localoptions,resize,tabpages,winpos
