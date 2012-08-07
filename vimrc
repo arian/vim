@@ -87,6 +87,13 @@ set undodir=~/.vim/undo
 set backup
 set undofile
 
+" Save and restore vim session
+if has("gui_running")
+	set sessionoptions=curdir,folds,localoptions,resize,tabpages,winpos
+	autocmd VIMEnter * :source ~/.vim/.session
+	autocmd VIMLeave * :mksession! ~/.vim/.session
+endif
+
 " Easy window navigation
 map <C-h> <C-w>h
 map <C-j> <C-w>j
@@ -99,12 +106,8 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
-" Save and restore vim session
-if has("gui_running")
-	set sessionoptions=curdir,folds,localoptions,resize,tabpages,winpos
-	autocmd VIMEnter * :source ~/.vim/.session
-	autocmd VIMLeave * :mksession! ~/.vim/.session
-endif
-
 """ Powerline settings
 let g:Powerline_stl_path_style = 'short'
+
+" gundo
+nnoremap <F5> :GundoToggle<CR>

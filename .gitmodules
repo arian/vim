@@ -46,3 +46,6 @@
 [submodule "bundle/vim-jade"]
 	path = bundle/vim-jade
 	url = git://github.com/digitaltoad/vim-jade.git
+[submodule "bundle/gundo.vim"]
+	path = bundle/gundo.vim
+	url = http://github.com/sjl/gundo.vim.git
