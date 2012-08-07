@@ -1,1 +1,1 @@
-git submodule foreach "(git fetch; git reset --hard origin/master)"
+git submodule foreach "(git pull origin)"
