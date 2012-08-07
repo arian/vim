@@ -1,6 +1,3 @@
-[submodule "bundle/ack.vim"]
-	path = bundle/ack.vim
-	url = https://github.com/mileszs/ack.vim.git
 [submodule "Better-CSS-Syntax-for-Vim"]
 	path = bundle/Better-CSS-Syntax-for-Vim
 	url = https://github.com/amadeus/Better-CSS-Syntax-for-Vim.git
