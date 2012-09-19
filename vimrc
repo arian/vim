@@ -26,7 +26,7 @@ if has("gui_running")
 	endif
 	" disable gvim toolbar
 	set guioptions-=T
-	colorscheme monokai
+	colorscheme molokai
 else
 	let g:molokai_original = 1
 	colorscheme molokai
