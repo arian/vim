@@ -28,7 +28,8 @@ if has("gui_running")
 	set guioptions-=T
 	colorscheme monokai
 else
-	colorscheme solarized
+	let g:molokai_original = 1
+	colorscheme molokai
 endif
 
 " Searching: highlight results, search while typing, ignore case when only lowercase
