@@ -109,3 +109,5 @@ let g:Powerline_stl_path_style = 'short'
 
 " gundo
 nnoremap <F5> :GundoToggle<CR>
+
+noremap <Leader>m :w<CR>:!make<CR>
