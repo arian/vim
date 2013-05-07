@@ -110,3 +110,6 @@ let g:Powerline_stl_path_style = 'short'
 nnoremap <F5> :GundoToggle<CR>
 
 noremap <Leader>m :w<CR>:!make<CR>
+
+" NERDTree ignores
+let NERDTreeIgnore = ['\.o$']
