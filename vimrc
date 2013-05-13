@@ -109,10 +109,12 @@ let g:Powerline_stl_path_style = 'short'
 " gundo
 nnoremap <F5> :GundoToggle<CR>
 
+" execute make
 noremap <Leader>m :w<CR>:!make<CR>
 
-" NERDTree ignores
+" NERDTree settings
 let NERDTreeIgnore = ['\.o$']
+noremap <F4> :NERDTreeToggle<CR>
 
 " Per folder .vimrc files
 set exrc            " enable per-directory .vimrc files
