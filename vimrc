@@ -113,3 +113,10 @@ noremap <Leader>m :w<CR>:!make<CR>
 
 " NERDTree ignores
 let NERDTreeIgnore = ['\.o$']
+
+" Per folder .vimrc files
+set exrc            " enable per-directory .vimrc files
+set secure          " disable unsafe commands in local .vimrc files
+
+" Use mouse in terminal
+set mouse=a
