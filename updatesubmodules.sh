@@ -1,1 +1,1 @@
-git submodule foreach "(git pull origin)"
+git submodule foreach "(git fetch origin && git checkout origin/master)"
