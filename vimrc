@@ -113,7 +113,7 @@ nnoremap <F5> :GundoToggle<CR>
 noremap <Leader>m :w<CR>:!make<CR>
 
 " NERDTree settings
-let NERDTreeIgnore = ['\.o$']
+let NERDTreeIgnore = ['\.(o|obj)$']
 noremap <F4> :NERDTreeToggle<CR>
 
 " Per folder .vimrc files
