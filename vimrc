@@ -1,6 +1,6 @@
 
 " plugins for vim
-call pathogen#infect()
+execute pathogen#infect()
 
 " Syntax, Colorscheme and Gui Options
 set number " line numbers
@@ -15,6 +15,8 @@ set linebreak
 
 " spell checking
 set spell
+
+filetype plugin indent on
 
 " colors
 syntax on
