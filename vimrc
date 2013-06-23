@@ -88,7 +88,7 @@ set undofile
 
 " Save and restore vim session
 if has("gui_running")
-	set sessionoptions=curdir,folds,localoptions,resize,tabpages,winpos
+	set sessionoptions=curdir,resize,winpos
 	autocmd VIMEnter * :source ~/.vim/.session
 	autocmd VIMLeave * :mksession! ~/.vim/.session
 endif
@@ -107,6 +107,8 @@ map <right> <nop>
 
 """ Powerline settings
 let g:Powerline_stl_path_style = 'short'
+" make sure powerline always is visible
+set laststatus=2
 
 " gundo
 nnoremap <F5> :GundoToggle<CR>
