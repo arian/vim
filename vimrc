@@ -39,8 +39,10 @@ set list
 set listchars=tab:›\ ,eol:¬,trail:⋅,extends:❯,precedes:❮
 set showbreak=↪
 
+augroup custom
+
 " Remove trailing whitespace on save
-autocmd BufWritePre * :%s/\s\+$//e
+autocmd custom BufWritePre * :%s/\s\+$//e
 
 " Automatically read files when they were modified externally
 set autoread
@@ -54,7 +56,7 @@ set autoindent
 "set cinkeys=0{,0},:,0#,!,!^F
 
 " Detect Indentation plugin
-:autocmd BufReadPost * :DetectIndent
+autocmd custom BufReadPost * :DetectIndent
 
 " Folding
 set foldmethod=indent
@@ -126,3 +128,18 @@ set secure          " disable unsafe commands in local .vimrc files
 
 " Use mouse in terminal
 set mouse=a
+
+" http://stackoverflow.com/a/4294176/430730
+" Create directory if it doesn't exist when creating a new file
+function s:MkNonExDir(file, buf)
+	if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+		let dir=fnamemodify(a:file, ':h')
+		if !isdirectory(dir)
+			call mkdir(dir, 'p')
+		endif
+	endif
+endfunction
+augroup BWCCreateDir
+	autocmd!
+	autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
