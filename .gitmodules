@@ -76,3 +76,6 @@
 [submodule "bundle/emmet-vim"]
 	path = bundle/emmet-vim
 	url = https://github.com/mattn/emmet-vim.git
+[submodule "bundle/vim-coloresque"]
+	path = bundle/vim-coloresque
+	url = https://github.com/gorodinskiy/vim-coloresque.git
