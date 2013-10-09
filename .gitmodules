@@ -45,7 +45,7 @@
 	url = git://github.com/digitaltoad/vim-jade.git
 [submodule "bundle/gundo.vim"]
 	path = bundle/gundo.vim
-	url = http://github.com/sjl/gundo.vim.git
+	url = https://github.com/sjl/gundo.vim.git
 [submodule "bundle/vim-repeat"]
 	path = bundle/vim-repeat
 	url = git://github.com/tpope/vim-repeat.git
