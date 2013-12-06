@@ -129,6 +129,10 @@ set secure          " disable unsafe commands in local .vimrc files
 " Use mouse in terminal
 set mouse=a
 
+" 'bash' like tab completion for filenames
+set wildmode=longest,list,full
+set wildmenu
+
 " http://stackoverflow.com/a/4294176/430730
 " Create directory if it doesn't exist when creating a new file
 function s:MkNonExDir(file, buf)
