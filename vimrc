@@ -1,4 +1,6 @@
 
+set nocompatible
+
 " plugins for vim
 execute pathogen#infect()
 
@@ -12,6 +14,8 @@ set scrolloff=10
 " Disable wrapping by default
 set nowrap
 set linebreak
+
+set backspace=2 " make backspace work like most other apps
 
 " spell checking
 set spell
