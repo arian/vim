@@ -111,6 +111,8 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
+let g:syntastic_javascript_checkers = ['jshint', 'jscs']
+
 """ Powerline settings
 let g:Powerline_stl_path_style = 'short'
 " make sure powerline always is visible
