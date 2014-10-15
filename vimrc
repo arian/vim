@@ -19,6 +19,7 @@ set backspace=2 " make backspace work like most other apps
 
 " spell checking
 set spell
+autocmd FileType scala set nospell
 
 filetype plugin indent on
 
