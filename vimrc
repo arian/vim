@@ -112,6 +112,12 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
+" Relative edit file
+command -nargs=1 Re :e %:p:h/<args>
+command -nargs=1 Rsp :sp %:p:h/<args>
+command -nargs=1 Rvsp :vsp %:p:h/<args>
+
+" Syntastic
 let g:syntastic_javascript_checkers = ['jshint', 'jscs']
 let g:syntastic_javascript_jscs_args = "--esnext"
 
