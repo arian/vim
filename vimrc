@@ -74,7 +74,7 @@ autocmd FileType php set omnifunc=phpcomplete#CompletePHP
 autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 
 " Tab completion when entering filenames, ctrlp plugin
-set wildignore+=*.o,*.obj,.git,*.rbc,.hg,.svn,*.pyc,.vagrant,.gitignore,.DS_Store,*.jpg,*.jpeg,*.png,*.gif,*.bmp,*/target/*,*.class
+set wildignore+=*.o,*.obj,.git,*.rbc,.hg,.svn,*.pyc,.vagrant,.gitignore,.DS_Store,*.jpg,*.jpeg,*.png,*.gif,*.bmp,*/target/*,*/node_modules/*,*.class
 
 
 " always switch to the current file directory
@@ -113,6 +113,7 @@ map <left> <nop>
 map <right> <nop>
 
 let g:syntastic_javascript_checkers = ['jshint', 'jscs']
+let g:syntastic_javascript_jscs_args = "--esnext"
 
 """ Powerline settings
 let g:Powerline_stl_path_style = 'short'
