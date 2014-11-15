@@ -19,6 +19,14 @@
 "
 " }}}
 
+" Global Variables {{{
+
+if !exists("g:EclimScalaValidate")
+  let g:EclimScalaValidate = 1
+endif
+
+" }}}
+
 " Options {{{
 
 exec 'setlocal ' . g:EclimCompletionMethod . '=eclim#scala#complete#CodeComplete'
@@ -39,9 +47,7 @@ augroup END
 command! -nargs=0 -buffer Validate :call eclim#lang#UpdateSrcFile('scala', 1)
 
 if !exists(":ScalaSearch")
-  command -buffer -nargs=0
-    \ -complete=customlist,eclim#scala#search#CommandCompleteSearch
-    \ ScalaSearch :call eclim#scala#search#Search('<args>')
+  command -buffer -nargs=0 ScalaSearch :call eclim#scala#search#Search('<args>')
 endif
 
 if !exists(":ScalaImport")

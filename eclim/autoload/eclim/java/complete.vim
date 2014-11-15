@@ -1,8 +1,11 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   see http://eclim.org/vim/java/complete.html
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -19,13 +22,28 @@
 "
 " }}}
 
+" Global Varables {{{
+  if !exists("g:EclimJavaCompleteLayout")
+    if &completeopt !~ 'preview' && &completeopt =~ 'menu'
+      let g:EclimJavaCompleteLayout = 'standard'
+    else
+      let g:EclimJavaCompleteLayout = 'compact'
+    endif
+  endif
+  if !exists("g:EclimJavaCompleteCaseSensitive")
+    let g:EclimJavaCompleteCaseSensitive = !&ignorecase
+  endif
+" }}}
+
 " Script Varables {{{
   let s:complete_command =
     \ '-command java_complete -p "<project>" -f "<file>" ' .
     \ '-o <offset> -e <encoding> -l <layout>'
 " }}}
 
-function! eclim#java#complete#CodeComplete(findstart, base) " {{{
+" CodeComplete(findstart, base) {{{
+" Handles java code completion.
+function! eclim#java#complete#CodeComplete(findstart, base)
   if !eclim#project#util#IsCurrentFileInProject(0)
     return a:findstart ? -1 : []
   endif
@@ -150,8 +168,9 @@ function! eclim#java#complete#CodeComplete(findstart, base) " {{{
   endif
 endfunction " }}}
 
-function! eclim#java#complete#ImportThenComplete(choices) " {{{
-  " Called by CodeComplete when the completion depends on a missing import.
+" ImportThenComplete {{{
+" Called by CodeComplete when the completion depends on a missing import.
+function! eclim#java#complete#ImportThenComplete(choices)
   let choice = ''
   if len(a:choices) > 1
     let choice = eclim#java#import#ImportPrompt(a:choices)

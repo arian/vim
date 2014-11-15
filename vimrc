@@ -117,6 +117,9 @@ command -nargs=1 Re :e %:p:h/<args>
 command -nargs=1 Rsp :sp %:p:h/<args>
 command -nargs=1 Rvsp :vsp %:p:h/<args>
 
+" :W is the same as :w
+:command W w
+
 " Syntastic
 let g:syntastic_javascript_checkers = ['jshint', 'jscs']
 let g:syntastic_javascript_jscs_args = "--esnext"

@@ -1,8 +1,11 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   see http://eclim.org/vim/java/search.html
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -19,6 +22,18 @@
 "
 " }}}
 
+" Global Varables {{{
+  if !exists("g:EclimJavaDocSearchSingleResult")
+    " possible values ('open', 'lopen')
+    let g:EclimJavaDocSearchSingleResult = "open"
+  endif
+
+  if !exists("g:EclimJavaSearchSingleResult")
+    " possible values ('split', 'edit', 'lopen')
+    let g:EclimJavaSearchSingleResult = g:EclimDefaultFileOpenAction
+  endif
+" }}}
+
 " Script Varables {{{
   let s:search_src = "java_search"
   let s:search_doc = "java_docsearch"
@@ -26,26 +41,21 @@
     \ '-command <search> -n "<project>" -f "<file>" ' .
     \ '-o <offset> -e <encoding> -l <length> <args>'
   let s:search_pattern = '-command <search>'
-  let s:options_map = {
-      \ '-p': [],
-      \ '-i': [],
-      \ '-a': ['split', 'vsplit', 'edit', 'tabnew', 'lopen'],
-      \ '-s': ['all', 'project'],
-      \ '-x': ['all', 'declarations', 'implementors', 'references'],
-      \ '-t': [
-        \ 'annotation',
-        \ 'class',
-        \ 'classOrEnum',
-        \ 'classOrInterface',
-        \ 'constructor',
-        \ 'enum',
-        \ 'field',
-        \ 'interface',
-        \ 'method',
-        \ 'package',
-        \ 'type',
-      \ ],
-    \ }
+  let s:options = ['-p', '-t', '-x', '-s', '-i']
+  let s:contexts = ['all', 'declarations', 'implementors', 'references']
+  let s:scopes = ['all', 'project']
+  let s:types = [
+    \ 'annotation',
+    \ 'class',
+    \ 'classOrEnum',
+    \ 'classOrInterface',
+    \ 'constructor',
+    \ 'enum',
+    \ 'field',
+    \ 'interface',
+    \ 'method',
+    \ 'package',
+    \ 'type']
 
   let s:search_alt_all = '\<<element>\>'
   let s:search_alt_references = s:search_alt_all
@@ -192,7 +202,7 @@ function! s:SearchAlternate(argline, element) " {{{
     " narrow down to, hopefully, a distribution path for a narrower search.
     let response = eclim#util#PromptList(
       \ "Multiple type matches. Please choose the relevant file.",
-      \ files, g:EclimHighlightInfo)
+      \ files, g:EclimInfoHighlight)
     if response == -1
       return
     endif
@@ -285,24 +295,38 @@ function! eclim#java#search#SearchAndDisplay(type, args) " {{{
     let argline = '-p ' . argline
   endif
 
-  " check for user supplied open action
-  let [action_args, argline] = eclim#util#ExtractCmdArgs(argline, '-a:')
-  let action = len(action_args) == 2 ? action_args[1] : g:EclimJavaSearchSingleResult
-
   let results = s:Search(a:type, argline)
   if type(results) != g:LIST_TYPE
     return
   endif
   if !empty(results)
     if a:type == 'java_search'
-      call eclim#lang#SearchResults(results, action)
-      return 1
+      call eclim#util#SetLocationList(eclim#util#ParseLocationEntries(results))
+      let locs = getloclist(0)
+      " if only one result and it's for the current file, just jump to it.
+      " note: on windows the expand result must be escaped
+      if len(results) == 1 && locs[0].bufnr == bufnr('%')
+        if results[0].line != 1 && results[0].column != 1
+          lfirst
+        endif
+
+      " single result in another file.
+      elseif len(results) == 1 && g:EclimJavaSearchSingleResult != "lopen"
+        let entry = getloclist(0)[0]
+        let name = substitute(bufname(entry.bufnr), '\', '/', 'g')
+        call eclim#util#GoToBufferWindowOrOpen(name, g:EclimJavaSearchSingleResult)
+        call eclim#util#SetLocationList(eclim#util#ParseLocationEntries(results))
+        call eclim#display#signs#Update()
+        call cursor(entry.lnum, entry.col)
+      else
+        exec 'lopen ' . g:EclimLocationListHeight
+      endif
     elseif a:type == 'java_docsearch'
       let window_name = "javadoc_search_results"
       let filename = expand('%:p')
       call eclim#util#TempWindowClear(window_name)
 
-      if len(results) == 1
+      if len(results) == 1 && g:EclimJavaDocSearchSingleResult == "open"
         let entry = results[0]
         call s:ViewDoc(entry)
       else
@@ -339,22 +363,35 @@ function! s:ViewDoc(...) " {{{
   call eclim#web#OpenUrl(url)
 endfunction " }}}
 
-function! eclim#java#search#CommandCompleteSearch(argLead, cmdLine, cursorPos) " {{{
-  let options_map = s:options_map
-  " omit the -a args on a javadoc search since those results are opened in a
-  " browser
-  if a:cmdLine =~ '^JavaDocS'
-    let options_map = copy(options_map)
-    unlet options_map['-a']
+function! eclim#java#search#CommandCompleteJavaSearch(argLead, cmdLine, cursorPos) " {{{
+  let cmdLine = strpart(a:cmdLine, 0, a:cursorPos)
+  let cmdTail = strpart(a:cmdLine, a:cursorPos)
+  let argLead = substitute(a:argLead, cmdTail . '$', '', '')
+  if cmdLine =~ '-s\s\+[a-z]*$'
+    let scopes = deepcopy(s:scopes)
+    call filter(scopes, 'v:val =~ "^' . argLead . '"')
+    return scopes
+  elseif cmdLine =~ '-t\s\+[a-z]*$'
+    let types = deepcopy(s:types)
+    call filter(types, 'v:val =~ "^' . argLead . '"')
+    return types
+  elseif cmdLine =~ '-x\s\+[a-z]*$'
+    let contexts = deepcopy(s:contexts)
+    call filter(contexts, 'v:val =~ "^' . argLead . '"')
+    return contexts
+  elseif cmdLine =~ '\s\+[-]\?$'
+    let options = deepcopy(s:options)
+    let index = 0
+    for option in options
+      if a:cmdLine =~ option
+        call remove(options, index)
+      else
+        let index += 1
+      endif
+    endfor
+    return options
   endif
-  return eclim#util#CommandCompleteOptions(
-    \ a:argLead, a:cmdLine, a:cursorPos, options_map)
-endfunction " }}}
-
-function! eclim#java#search#CommandCompleteSearchContext(argLead, cmdLine, cursorPos) " {{{
-  let options_map = {'-a': s:options_map['-a']}
-  return eclim#util#CommandCompleteOptions(
-    \ a:argLead, a:cmdLine, a:cursorPos, options_map)
+  return []
 endfunction " }}}
 
 function! eclim#java#search#FindClassDeclaration() " {{{

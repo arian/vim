@@ -22,70 +22,45 @@
 "
 " }}}
 
-" Script Variables {{{
+" Global Variables {{{
+if !exists("g:EclimShowQuickfixSigns")
+  let g:EclimShowQuickfixSigns = 1
+endif
 
-  let s:sign_levels = {
-      \ 'trace': 5,
-      \ 'debug': 4,
-      \ 'info': 3,
-      \ 'warning': 2,
-      \ 'error': 1,
-      \ 'off': 0,
-    \ }
+if !exists("g:EclimShowLoclistSigns")
+  let g:EclimShowLoclistSigns = 1
+endif
 
-  let s:sign_ids = {}
+if !exists("g:EclimQuickfixSignText")
+  let g:EclimQuickfixSignText = '> '
+endif
 
+if !exists("g:EclimLoclistSignText")
+  let g:EclimLoclistSignText = '>>'
+endif
+
+if !exists("g:EclimUserSignText")
+  let g:EclimUserSignText = '#'
+endif
+
+if !exists("g:EclimUserSignHighlight")
+  let g:EclimUserSignHighlight = g:EclimInfoHighlight
+endif
 " }}}
 
-function! eclim#display#signs#Define(name, text, highlight, ...) " {{{
+function! eclim#display#signs#Define(name, text, highlight) " {{{
   " Defines a new sign name or updates an existing one.
-  " Optional arg:
-  "   linehl: The highlight to use for the line with this sign applied.
-  call s:Define(a:name)
-  let command = "sign define " . a:name . " text=" . a:text . " texthl=" . a:highlight
-  if a:0
-    let command .= " linehl=" . a:1
-  endif
-  exec command
-endfunction " }}}
-
-function! s:Define(name) " {{{
-  " Defines a new sign name and assignes it a base id.
-  if !has_key(s:sign_ids, a:name)
-    let sid = 0
-    let index = 0
-    let name = 'eclim' . a:name
-    while index < len(name)
-      let sid += char2nr(name[index])
-      let index += 1
-    endwhile
-    let sid = sid * 1000
-    for [key, value] in items(s:sign_ids)
-      if value == sid
-        throw printf('Sign id for "%s" clashes with "%s".', a:name, key)
-      endif
-    endfor
-    let s:sign_ids[a:name] = sid
-  endif
-endfunction " }}}
-
-function! eclim#display#signs#Id(name, line) " {{{
-  return s:sign_ids[a:name] + a:line
+  exec "sign define " . a:name . " text=" . a:text . " texthl=" . a:highlight
 endfunction " }}}
 
 function! eclim#display#signs#Place(name, line) " {{{
   " Places a sign in the current buffer.
-  call eclim#display#signs#PlaceInBuffer(a:name, bufnr('%'), a:line)
-endfunction " }}}
-
-function! eclim#display#signs#PlaceInBuffer(name, buffer_num, line) " {{{
-  " Places a sign in the given buffer.
   if a:line > 0
     let lastline = line('$')
     let line = a:line <= lastline ? a:line : lastline
-    let id = eclim#display#signs#Id(a:name, line)
+    let id = a:name == 'placeholder' ? 999999 : line
     exec "sign place " . id . " line=" . line . " name=" . a:name .
-      \ " buffer=" . a:buffer_num
+      \ " buffer=" . bufnr('%')
   endif
 endfunction " }}}
 
@@ -109,12 +84,7 @@ endfunction " }}}
 
 function! eclim#display#signs#Unplace(id) " {{{
   " Un-places a sign in the current buffer.
-  call eclim#display#signs#UnplaceFromBuffer(a:id, bufnr('%'))
-endfunction " }}}
-
-function! eclim#display#signs#UnplaceFromBuffer(id, buffer_num) " {{{
-  " Un-places a sign from the given buffer
-  exec 'sign unplace ' . a:id . ' buffer=' . a:buffer_num
+  exec 'sign unplace ' . a:id . ' buffer=' . bufnr('%')
 endfunction " }}}
 
 function! eclim#display#signs#UnplaceAll(list) " {{{
@@ -124,7 +94,7 @@ function! eclim#display#signs#UnplaceAll(list) " {{{
 
   for sign in a:list
     if type(sign) == g:DICT_TYPE
-      call eclim#display#signs#Unplace(sign.id)
+      call eclim#display#signs#Unplace(sign['id'])
     else
       call eclim#display#signs#Unplace(sign)
     endif
@@ -132,7 +102,7 @@ function! eclim#display#signs#UnplaceAll(list) " {{{
 endfunction " }}}
 
 function! eclim#display#signs#Toggle(name, line) " {{{
-  if g:EclimSignLevel == 'off'
+  if !g:EclimSignLevel
     call eclim#util#Echo('Eclim signs have been disabled.')
     return
   endif
@@ -140,9 +110,9 @@ function! eclim#display#signs#Toggle(name, line) " {{{
   " Toggle a sign on the current line.
   if a:line > 0
     let existing = eclim#display#signs#GetExisting(a:name)
-    let exists = filter(existing, "v:val['line'] == a:line")
-    if len(exists)
-      call eclim#display#signs#Unplace(exists[0].id)
+    let exists = len(filter(existing, "v:val['line'] == a:line"))
+    if exists
+      call eclim#display#signs#Unplace(a:line)
     else
       call eclim#display#signs#Place(a:name, a:line)
     endif
@@ -165,7 +135,7 @@ function! eclim#display#signs#ViewSigns(name) " {{{
   " Open a window to view all placed signs with the given name in the current
   " buffer.
 
-  if g:EclimSignLevel == 'off'
+  if !g:EclimSignLevel
     call eclim#util#Echo('Eclim signs have been disabled.')
     return
   endif
@@ -219,10 +189,9 @@ function! eclim#display#signs#GetExisting(...) " {{{
   "   line: The line number.
   "   name: The sign name (erorr, warning, etc.)
   "
-  " Optionally one or more sign names may be supplied to only retrieve signs
-  " for those names.
+  " Optionally a sign name may be supplied to only retrieve signs of that name.
 
-  if !has('signs') || g:EclimSignLevel == 'off'
+  if !has('signs') || !g:EclimSignLevel
     return []
   endif
 
@@ -240,8 +209,7 @@ function! eclim#display#signs#GetExisting(...) " {{{
   endfor
 
   if len(a:000) > 0
-    let pattern = '^\(' . join(a:000, '\|') . '\)$'
-    call filter(existing, "v:val['name'] =~ pattern")
+    call filter(existing, "v:val['name'] == a:000[0]")
   endif
 
   return existing
@@ -251,7 +219,7 @@ function! eclim#display#signs#HasExisting(...) " {{{
   " Determines if there are any existing signs.
   " Optionally a sign name may be supplied to only test for signs of that name.
 
-  if !has('signs') || g:EclimSignLevel == 'off'
+  if !has('signs') || !g:EclimSignLevel
     return 0
   endif
 
@@ -305,7 +273,7 @@ function! eclim#display#signs#Update() " {{{
   " dictionaries in the location or quickfix list.  It supports 'i' (info), 'w'
   " (warning), and 'e' (error).
 
-  if !has('signs') || g:EclimSignLevel == 'off' || &ft == 'qf'
+  if !has('signs') || !g:EclimSignLevel || &ft == 'qf'
     return
   endif
 
@@ -331,21 +299,21 @@ function! eclim#display#signs#Update() " {{{
   for [list, marker, prefix] in [
       \ [qflist, g:EclimQuickfixSignText, 'qf_'],
       \ [loclist, g:EclimLoclistSignText, '']]
-    if s:sign_levels[g:EclimSignLevel] >= 3
+    if g:EclimSignLevel >= 4
       let info = filter(copy(list), 'v:val.type == "" || tolower(v:val.type) == "i"')
-      call eclim#display#signs#Define(prefix . 'info', marker, g:EclimHighlightInfo)
+      call eclim#display#signs#Define(prefix . 'info', marker, g:EclimInfoHighlight)
       call eclim#display#signs#PlaceAll(prefix . 'info', map(info, 'v:val.lnum'))
     endif
 
-    if s:sign_levels[g:EclimSignLevel] >= 2
+    if g:EclimSignLevel >= 3
       let warnings = filter(copy(list), 'tolower(v:val.type) == "w"')
-      call eclim#display#signs#Define(prefix . 'warning', marker, g:EclimHighlightWarning)
+      call eclim#display#signs#Define(prefix . 'warning', marker, g:EclimWarningHighlight)
       call eclim#display#signs#PlaceAll(prefix . 'warning', map(warnings, 'v:val.lnum'))
     endif
 
-    if s:sign_levels[g:EclimSignLevel] >= 1
+    if g:EclimSignLevel >= 2
       let errors = filter(copy(list), 'tolower(v:val.type) == "e"')
-      call eclim#display#signs#Define(prefix . 'error', marker, g:EclimHighlightError)
+      call eclim#display#signs#Define(prefix . 'error', marker, g:EclimErrorHighlight)
       call eclim#display#signs#PlaceAll(prefix . 'error', map(errors, 'v:val.lnum'))
     endif
   endfor
@@ -380,7 +348,7 @@ function! eclim#display#signs#SetPlaceholder(...) " {{{
   "   only_if_necessary: if 1, only set a placeholder if there are no existing
   "   signs
 
-  if !has('signs') || g:EclimSignLevel == 'off'
+  if !has('signs') || !g:EclimSignLevel
     return
   endif
 
@@ -391,7 +359,7 @@ function! eclim#display#signs#SetPlaceholder(...) " {{{
     endif
   endif
 
-  call eclim#display#signs#Define('placeholder', '_ ', g:EclimHighlightInfo)
+  call eclim#display#signs#Define('placeholder', '_ ', g:EclimInfoHighlight)
   let existing = eclim#display#signs#GetExisting('placeholder')
   if len(existing) == 0 && eclim#display#signs#HasExisting()
     call eclim#display#signs#Place('placeholder', 1)
@@ -401,7 +369,7 @@ function! eclim#display#signs#SetPlaceholder(...) " {{{
 endfunction " }}}
 
 function! eclim#display#signs#RemovePlaceholder() " {{{
-  if !has('signs') || g:EclimSignLevel == 'off'
+  if !has('signs') || !g:EclimSignLevel
     return
   endif
 
@@ -414,7 +382,7 @@ endfunction " }}}
 " define signs for manually added user marks.
 if has('signs')
   call eclim#display#signs#Define(
-    \ 'user', g:EclimUserSignText, g:EclimHighlightUserSign)
+    \ 'user', g:EclimUserSignText, g:EclimUserSignHighlight)
 endif
 
 " vim:ft=vim:fdm=marker

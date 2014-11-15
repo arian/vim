@@ -1,6 +1,8 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"
+" License:
 "
 " Copyright (C) 2005 - 2014  Eric Van Dewoestine
 "
@@ -27,6 +29,12 @@ runtime! indent/xml.vim
 augroup eclim_xml
   autocmd! BufWritePost <buffer>
 augroup END
+
+" Global Variables {{{
+if !exists('g:EclimMavenPomClasspathUpdate')
+  let g:EclimMavenPomClasspathUpdate = 1
+endif
+" }}}
 
 " Autocmds {{{
 if g:EclimMavenPomClasspathUpdate

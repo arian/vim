@@ -4,7 +4,7 @@
 "
 " License:
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -206,8 +206,7 @@ function! eclim#project#util#ProjectImport(arg) " {{{
   if result != '0'
     let project = eclim#project#util#GetProject(folder)
     if !len(natureIds)
-      let natureIds = eclim#project#util#GetProjectNatureAliases(
-        \ get(project, 'name', ''))
+      let natureIds = eclim#project#util#GetProjectNatureAliases(project)
     endif
     call s:ProjectNatureHooks(natureIds, 'ProjectImportPost', [project])
     call eclim#util#Echo(result)
@@ -242,7 +241,7 @@ function! eclim#project#util#ProjectRename(args) " {{{
   else
     let response = eclim#util#PromptConfirm(
       \ printf("Rename project '%s' to '%s'", project, name),
-      \ g:EclimHighlightInfo)
+      \ g:EclimInfoHighlight)
   endif
 
   if response == 1
@@ -276,7 +275,7 @@ function! eclim#project#util#ProjectMove(args) " {{{
   else
     let response = eclim#util#PromptConfirm(
       \ printf("Move project '%s' to '%s'", project, dir),
-      \ g:EclimHighlightInfo)
+      \ g:EclimInfoHighlight)
   endif
 
   if response == 1
@@ -458,9 +457,7 @@ endfunction " }}}
 function! eclim#project#util#ProjectStatusLine() " {{{
   " Includes status information for the current file to VIM status
 
-  " don't ever display errors since this is called from the user's status
-  " line.
-  silent! let project = eclim#project#util#GetProject(expand('%:p'))
+  let project = eclim#project#util#GetProject(expand('%:p'))
   if !empty(project)
     let status = g:EclimProjectStatusLine
     while status =~ '\${\w\+}'
@@ -481,7 +478,6 @@ function! eclim#project#util#ProjectStatusLine() " {{{
     endwhile
     return status
   endif
-  return ''
 endfunction " }}}
 
 function! eclim#project#util#ProjectOpen(name) " {{{
@@ -878,26 +874,14 @@ endfunction " }}}
 
 function! eclim#project#util#GetProjectWorkspace(name) " {{{
   " Gets the workspace that a project belongs to.
-
-  " ensure s:workspace_projects is initialized
-  call eclim#project#util#GetProjects()
-
-  " loop through each workspace since the same project name could be used in
-  " more than one workspace.
-  let workspaces = []
-  for [workspace, projects] in items(s:workspace_projects)
-    for p in projects
-      if p.name == a:name
-        call add(workspaces, workspace)
-        break
-      endif
-    endfor
+  let project = {}
+  for p in eclim#project#util#GetProjects()
+    if p.name == a:name
+      let project = p
+      break
+    endif
   endfor
-
-  if len(workspaces) > 1
-    return workspaces
-  endif
-  return len(workspaces) ? workspaces[0] : ''
+  return get(project, 'workspace', '')
 endfunction " }}}
 
 function! eclim#project#util#GetProjectRelativeFilePath(...) " {{{
@@ -917,7 +901,7 @@ function! eclim#project#util#GetProjectRelativeFilePath(...) " {{{
 
   let file = substitute(fnamemodify(file, ':p'), '\', '/', 'g')
   let pattern = '\(/\|$\)'
-  if has('win32') || has('win64') || has('macunix')
+  if has('win32') || has('win64')
     let pattern .= '\c'
   endif
   let result = substitute(file, get(project, 'path', '') . pattern, '', '')
@@ -1005,7 +989,7 @@ function! eclim#project#util#GetProject(path) " {{{
 
   let path = substitute(fnamemodify(path, ':p'), '\', '/', 'g')
   let pattern = '\(/\|$\)'
-  if has('win32') || has('win64') || has('macunix')
+  if has('win32') || has('win64')
     let pattern .= '\c'
   endif
 
@@ -1071,12 +1055,13 @@ function! eclim#project#util#GetProjectNames(...) " {{{
       let projects += results
     endfor
 
-    let names = map(projects, "v:val.name")
-  else
-    let names = map(eclim#project#util#GetProjects(), 'v:val.name')
+    call map(projects, "v:val.name")
+    return projects
   endif
 
-  return eclim#util#ListDedupe(sort(names))
+  let names = map(eclim#project#util#GetProjects(), 'v:val.name')
+  call sort(names)
+  return names
 endfunction " }}}
 
 function! eclim#project#util#GetProjectNatureAliases(...) " {{{

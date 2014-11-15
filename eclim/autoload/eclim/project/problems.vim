@@ -1,8 +1,10 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -17,6 +19,12 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "
+" }}}
+
+" Global variables {{{
+  if !exists('g:EclimProblemsQuickFixOpen')
+    let g:EclimProblemsQuickFixOpen = 'botright copen'
+  endif
 " }}}
 
 " Script variables {{{
@@ -54,7 +62,7 @@ function! eclim#project#problems#Problems(project, open, bang) " {{{
   let s:eclim_problems_bang = a:bang
 
   if a:open
-    exec g:EclimProjectProblemsQuickFixOpen
+    exec g:EclimProblemsQuickFixOpen
   endif
 endfunction " }}}
 

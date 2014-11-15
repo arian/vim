@@ -2,7 +2,7 @@
 "
 " License: {{{
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ function! eclim#client#nailgun#ChooseEclimdInstance(...) " {{{
     let workspaces = keys(instances)
     let response = eclim#util#PromptList(
       \ 'Muliple workspaces found, please choose the target workspace',
-      \ workspaces, g:EclimHighlightInfo)
+      \ workspaces, g:EclimInfoHighlight)
 
     " user cancelled, error, etc.
     if response < 0
@@ -108,14 +108,18 @@ function! eclim#client#nailgun#Execute(instance, command, ...) " {{{
   let exec = a:0 ? a:1 : 0
 
   if !exec
+    if !exists('g:EclimNailgunClient')
+      call s:DetermineClient()
+    endif
+
     if g:EclimNailgunClient == 'python' && has('python')
       return eclim#client#python#nailgun#Execute(a:instance.port, a:command)
     endif
   endif
 
-  let [retcode, result] = eclim#client#nailgun#GetEclimCommand(a:instance.home)
-  if retcode != 0
-    return [retcode, result]
+  let eclim = eclim#client#nailgun#GetEclimCommand(a:instance.home)
+  if string(eclim) == '0'
+    return [1, g:EclimErrorReason]
   endif
 
   let command = a:command
@@ -129,7 +133,7 @@ function! eclim#client#nailgun#Execute(instance, command, ...) " {{{
     let command = substitute(command, '\^', '^^', 'g')
   endif
 
-  let eclim = result . ' --nailgun-server localhost --nailgun-port ' . a:instance.port . ' ' . command
+  let eclim .= ' --nailgun-port ' . a:instance.port . ' ' . command
   if exec
     let eclim = '!' . eclim
   endif
@@ -147,15 +151,27 @@ function! eclim#client#nailgun#GetEclimCommand(home) " {{{
   endif
 
   if !filereadable(command)
-    return [1, 'Could not locate file: ' . command]
+    let g:EclimErrorReason = 'Could not locate file: ' . command
+    return
   endif
 
   if has('win32unix')
     " in cygwin, we must use 'cmd /c' to prevent issues with eclim script +
     " some arg containing spaces causing a failure to invoke the script.
-    return [0, 'cmd /c "' . eclim#cygwin#WindowsPath(command) . '"']
+    return 'cmd /c "' . eclim#cygwin#WindowsPath(command) . '"'
   endif
-  return [0, '"' . command . '"']
+  return '"' . command . '"'
+endfunction " }}}
+
+function! s:DetermineClient() " {{{
+  " at least one ubuntu user had serious performance issues using the python
+  " client, so we are only going to default to python on windows machines
+  " where there is an actual potential benefit to using it.
+  if has('python') && (has('win32') || has('win64'))
+    let g:EclimNailgunClient = 'python'
+  else
+    let g:EclimNailgunClient = 'external'
+  endif
 endfunction " }}}
 
 function! eclim#client#nailgun#CommandCompleteWorkspaces(argLead, cmdLine, cursorPos) " {{{

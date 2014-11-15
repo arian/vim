@@ -1,6 +1,9 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   see http://eclim.org/vim/java/index.html
+"
+" License:
 "
 " Copyright (C) 2005 - 2014  Eric Van Dewoestine
 "
@@ -17,6 +20,30 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "
+" }}}
+
+" Global Variables {{{
+
+if !exists("g:EclimJavaValidate")
+  let g:EclimJavaValidate = 1
+endif
+
+if !exists("g:EclimJavaSetCommonOptions")
+  let g:EclimJavaSetCommonOptions = 1
+endif
+
+if !exists("g:EclimJavaCompilerAutoDetect")
+  let g:EclimJavaCompilerAutoDetect = 1
+endif
+
+if !exists("g:EclimJavaSyntasticEnabled")
+  let g:EclimJavaSyntasticEnabled = 0
+endif
+
+if !exists('g:EclimJavaCallHierarchyDefaultAction')
+  let g:EclimJavaCallHierarchyDefaultAction = g:EclimDefaultFileOpenAction
+endif
+
 " }}}
 
 " Options {{{
@@ -164,17 +191,16 @@ endif
 
 if !exists(":JavaSearch")
   command -buffer -nargs=*
-    \ -complete=customlist,eclim#java#search#CommandCompleteSearch
+    \ -complete=customlist,eclim#java#search#CommandCompleteJavaSearch
     \ JavaSearch :call eclim#java#search#SearchAndDisplay('java_search', '<args>')
 endif
 if !exists(":JavaSearchContext")
-  command -buffer -nargs=?
-    \ -complete=customlist,eclim#java#search#CommandCompleteSearchContext
-    \ JavaSearchContext :call eclim#java#search#SearchAndDisplay('java_search', '<args>')
+  command -buffer JavaSearchContext
+    \ :call eclim#java#search#SearchAndDisplay('java_search', '')
 endif
 if !exists(":JavaDocSearch")
   command -buffer -nargs=*
-    \ -complete=customlist,eclim#java#search#CommandCompleteSearch
+    \ -complete=customlist,eclim#java#search#CommandCompleteJavaSearch
     \ JavaDocSearch :call eclim#java#search#SearchAndDisplay('java_docsearch', '<args>')
 endif
 
@@ -194,11 +220,6 @@ endif
 if !exists(":JavaMove")
   command -nargs=1 -buffer -complete=customlist,eclim#java#util#CommandCompletePackage
     \ JavaMove :call eclim#java#refactor#Move('<args>')
-endif
-
-if !exists(":JavaNew")
-  command -nargs=+ -buffer -complete=customlist,eclim#java#new#CommandComplete
-    \ JavaNew :call eclim#java#new#Create(<f-args>)
 endif
 
 if !exists(":JavaLoggingInit")
@@ -222,28 +243,6 @@ endif
 
 if !exists(":Checkstyle")
   command -nargs=0 -buffer Checkstyle :call eclim#java#src#Checkstyle()
-endif
-
-if !exists(":JavaDebug")
-  command -nargs=* -buffer JavaDebugStart
-    \ :call eclim#java#debug#DebugStart(<f-args>)
-  command -nargs=0 -buffer JavaDebugStop :call eclim#java#debug#DebugStop()
-  command -nargs=0 -buffer JavaDebugStatus :call eclim#java#debug#Status()
-  command -nargs=+ -buffer JavaDebugStep :call eclim#java#debug#Step(<f-args>)
-
-  command -nargs=0 -buffer JavaDebugThreadSuspendAll
-    \ :call eclim#java#debug#DebugThreadSuspendAll()
-  command -nargs=0 -buffer JavaDebugThreadResume
-    \ :call eclim#java#debug#DebugThreadResume()
-  command -nargs=0 -buffer JavaDebugThreadResumeAll
-    \ :call eclim#java#debug#DebugThreadResumeAll()
-
-  command -nargs=0 -buffer -bang JavaDebugBreakpointToggle
-    \ :call eclim#java#debug#BreakpointToggle('<bang>')
-  command -nargs=0 -buffer -bang JavaDebugBreakpointsList
-    \ :call eclim#java#debug#BreakpointsList('<bang>')
-  command -nargs=0 -buffer -bang JavaDebugBreakpointRemove
-    \ :call eclim#java#debug#BreakpointRemove('<bang>')
 endif
 
 " }}}

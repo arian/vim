@@ -1,8 +1,11 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   Implements the :LocateFile functionality.
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -20,6 +23,31 @@
 " }}}
 
 " Global Variables {{{
+if !exists('g:EclimLocateFileDefaultAction')
+  let g:EclimLocateFileDefaultAction = g:EclimDefaultFileOpenAction
+endif
+
+if !exists('g:EclimLocateFileScope')
+  let g:EclimLocateFileScope = 'project'
+endif
+
+if !exists('g:EclimLocateFileNonProjectScope')
+  let g:EclimLocateFileNonProjectScope = 'workspace'
+endif
+
+if !exists('g:EclimLocateFileFuzzy')
+  let g:EclimLocateFileFuzzy = 1
+endif
+
+if !exists('g:EclimLocateFileCaseInsensitive')
+  " one of: 'lower', 'never', 'always'
+  let g:EclimLocateFileCaseInsensitive = 'lower'
+endif
+
+if !exists('g:EclimLocateUserScopes')
+  let g:EclimLocateUserScopes = []
+endif
+
 let g:eclim_locate_default_updatetime = &updatetime
 
 " disable autocomplpop in the locate prompt
@@ -51,13 +79,14 @@ let s:help = [
   \ ]
 " }}}
 
-function! eclim#common#locate#LocateFile(action, file, ...) " {{{
-  " Locates a file using the specified action for opening the file when found.
-  "   action - '' (use user default), 'split', 'edit', etc.
-  "   file - 'somefile.txt',
-  "          '', (kick off completion mode),
-  "          '<cursor>' (locate the file under the cursor)
-  "   scope - optional scope to search in (project, workspace, buffers, etc.)
+" LocateFile(action, file, [scope]) {{{
+" Locates a file using the specified action for opening the file when found.
+"   action - '' (use user default), 'split', 'edit', etc.
+"   file - 'somefile.txt',
+"          '', (kick off completion mode),
+"          '<cursor>' (locate the file under the cursor)
+"   scope - optional scope to search in (project, workspace, buffers, etc.)
+function! eclim#common#locate#LocateFile(action, file, ...)
   let project = eclim#project#util#GetCurrentProjectName()
   let scope = a:0 > 0 ? a:1 : g:EclimLocateFileScope
 
@@ -116,7 +145,7 @@ function! eclim#common#locate#LocateFile(action, file, ...) " {{{
     let b:project = project
     let results = s:LocateFileFunction(scope)(pattern)
   finally
-    unlet! b:workspace
+    unlet! b:workspce
     unlet! b:project
   endtry
 
@@ -130,7 +159,7 @@ function! eclim#common#locate#LocateFile(action, file, ...) " {{{
   " More than one result.
   elseif len(results) > 1
     let message = "Multiple results, choose the file to open"
-    let response = eclim#util#PromptList(message, results, g:EclimHighlightInfo)
+    let response = eclim#util#PromptList(message, results, g:EclimInfoHighlight)
     if response == -1
       return
     endif
@@ -214,7 +243,6 @@ endfunction " }}}
 function! s:LocateFileCompletionInit(action, scope, project, workspace) " {{{
   let file = expand('%')
   let bufnum = bufnr('%')
-  let winnr = winnr()
   let winrestcmd = winrestcmd()
 
   topleft 12split [Locate\ Results]
@@ -239,7 +267,6 @@ function! s:LocateFileCompletionInit(action, scope, project, workspace) " {{{
   setlocal buftype=nofile bufhidden=delete
 
   let b:bufnum = bufnum
-  let b:winnr = winnr
   let b:project = a:project
   let b:workspace = a:workspace
   let b:scope = a:scope
@@ -271,11 +298,9 @@ function! s:LocateFileCompletionInit(action, scope, project, workspace) " {{{
   call s:LocateFileCompletionAutocmdDeferred()
 
   imap <buffer> <silent> <tab> <c-r>=<SID>LocateFileSelection("n")<cr>
-  imap <buffer> <silent> <c-j> <c-r>=<SID>LocateFileSelection("n")<cr>
   imap <buffer> <silent> <down> <c-r>=<SID>LocateFileSelection("n")<cr>
   imap <buffer> <silent> <s-tab> <c-r>=<SID>LocateFileSelection("p")<cr>
   imap <buffer> <silent> <up> <c-r>=<SID>LocateFileSelection("p")<cr>
-  imap <buffer> <silent> <c-k> <c-r>=<SID>LocateFileSelection("p")<cr>
   exec 'imap <buffer> <silent> <cr> ' .
     \ '<c-r>=<SID>LocateFileSelect("' . a:action . '")<cr>'
   imap <buffer> <silent> <c-e> <c-r>=<SID>LocateFileSelect('edit')<cr>
@@ -361,7 +386,6 @@ function! s:LocateFileSelect(action) " {{{
     endif
 
     let bufnum = b:bufnum
-    let winnr = b:winnr
     let winrestcmd = b:winrestcmd
 
     " close locate windows
@@ -372,8 +396,7 @@ function! s:LocateFileSelect(action) " {{{
     exec winrestcmd
 
     " open the selected result
-    exec winnr . "wincmd w"
-    " call eclim#util#GoToBufferWindow(bufnum)
+    call eclim#util#GoToBufferWindow(bufnum)
     call eclim#util#GoToBufferWindowOrOpen(file, a:action)
     call feedkeys("\<esc>", 'n')
     doautocmd WinEnter
@@ -427,6 +450,7 @@ function! s:ChooseScope() " {{{
     return
   endif
 
+  let workspace = ''
   let project = ''
   let locate_in = scope
 
@@ -449,20 +473,6 @@ function! s:ChooseScope() " {{{
     endwhile
     let locate_in = project
     let workspace = eclim#project#util#GetProjectWorkspace(project)
-    if type(workspace) == g:LIST_TYPE
-      let workspaces = workspace
-      unlet workspace
-      let response = eclim#util#PromptList(
-        \ 'Muliple workspaces found, please choose the target workspace',
-        \ workspaces, g:EclimHighlightInfo)
-
-      " user cancelled, error, etc.
-      if response < 0
-        return
-      endif
-
-      let workspace = workspaces[response]
-    endif
 
   elseif scope == 'workspace'
     let project = ''
@@ -471,8 +481,6 @@ function! s:ChooseScope() " {{{
       return
     endif
     let workspace = instance.workspace
-  else
-    let workspace = ''
   endif
 
   call s:CloseScopeChooser()

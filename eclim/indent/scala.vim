@@ -10,9 +10,9 @@ let b:did_indent = 1
 
 setlocal indentexpr=GetScalaIndent()
 
-setlocal indentkeys=0{,0},0),!^F,<>>,o,O
+setlocal indentkeys=0{,0},0),!^F,<>>,<CR>
 
-setlocal autoindent shiftwidth=2 tabstop=2 softtabstop=2 expandtab
+setlocal autoindent sw=2 et
 
 if exists("*GetScalaIndent")
   finish
@@ -45,8 +45,7 @@ function! GetScalaIndent()
   " Add a 'shiftwidth' after lines that start a block
   " If if, for or while end with ), this is a one-line block
   " If val, var, def end with =, this is a one-line block
-  if prevline =~ '^\s*\<\(\(else\s\+\)\?if\|for\|while\)\>.*[)]\s*$'
-        \ || prevline =~ '^\s*\<\(\(va[lr]\|def\)\>.*[=]\s*$'
+  if prevline =~ '^\s*\<\(\(else\s\+\)\?if\|for\|while\|va[lr]\|def\)\>.*[)=]\s*$'
         \ || prevline =~ '^\s*\<else\>\s*$'
         \ || prevline =~ '{\s*$'
     let ind = ind + &shiftwidth
@@ -63,8 +62,7 @@ function! GetScalaIndent()
   
   " Dedent after if, for, while and val, var, def without block
   let pprevline = getline(prevnonblank(lnum - 1))
-  if pprevline =~ '^\s*\<\(\(else\s\+\)\?if\|for\|while\)\>.*[)]\s*$'
-        \ || pprevline =~ '^\s*\<\(\va[lr]\|def\)\>.*[=]\s*$'
+  if pprevline =~ '^\s*\<\(\(else\s\+\)\?if\|for\|while\|va[lr]\|def\)\>.*[)=]\s*$'
         \ || pprevline =~ '^\s*\<else\>\s*$'
     let ind = ind - &shiftwidth
   endif
@@ -79,24 +77,6 @@ function! GetScalaIndent()
   if thisline =~ '^\s*[})]' 
         \ || thisline =~ '^\s*</[a-zA-Z][^>]*>'
     let ind = ind - &shiftwidth
-  endif
-
-  " Indent multi-lines comments
-  if prevline =~ '^\s*\/\*\($\|[^*]\(\(\*\/\)\@!.\)*$\)'
-    let ind = ind + 1
-  endif
-
-  " Indent multi-lines ScalaDoc
-  if prevline =~ '^\s*\/\*\*\($\|[^*]\(\(\*\/\)\@!.\)*$\)'
-    let ind = ind + 2
-  endif
-
-  " Dedent after multi-lines comments & ScalaDoc
-  if prevline =~ '^\s*\(\(\/\*\)\@!.\)*\*\/.*$'
-    " Dedent 1
-    let ind = ind - 1
-    " Align to any multiple of 'shiftwidth'
-    let ind = ind - (ind % &shiftwidth)
   endif
 
   return ind

@@ -1,8 +1,11 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   see http://eclim.org/vim/xml/validate.html
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2012  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -17,6 +20,14 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "
+" }}}
+
+" Global Variables {{{
+
+if !exists("g:EclimXmlValidate")
+  let g:EclimXmlValidate = 1
+endif
+
 " }}}
 
 " Autocmds {{{

@@ -1,8 +1,11 @@
 " Author:  Eric Van Dewoestine
 "
-" License: {{{
+" Description: {{{
+"   Various functions that are useful in and out of eclim.
 "
-" Copyright (C) 2005 - 2014  Eric Van Dewoestine
+" License:
+"
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -19,16 +22,17 @@
 "
 " }}}
 
-" Script Variables {{{
+" Global Variables {{{
 let s:command_read = '-command archive_read -f "<file>"'
 " }}}
 
-function! eclim#common#util#DiffLastSaved() " {{{
-  " Diff a modified file with the last saved version.
+" DiffLastSaved() {{{
+" Diff a modified file with the last saved version.
+function! eclim#common#util#DiffLastSaved()
   if &modified
     let winnum = winnr()
     let filetype=&ft
-    vertical belowright new | r #
+    vertical botright new | r #
     1,1delete _
 
     diffthis
@@ -56,9 +60,24 @@ function! eclim#common#util#DiffLastSaved() " {{{
   endif
 endfunction " }}}
 
-function! eclim#common#util#SwapWords() " {{{
-  " Initially based on http://www.vim.org/tips/tip.php?tip_id=329
+" SwapTypedArguments() {{{
+" Swaps typed method declaration arguments.
+function! eclim#common#util#SwapTypedArguments()
+  " FIXME: add validation to see if user is executing on a valid position.
+  normal! w
+  SwapWords
+  normal! b
+  SwapWords
+  normal! www
+  SwapWords
+  normal! bb
+  SwapWords
+  normal! b
+endfunction " }}}
 
+" SwapWords() {{{
+" Initially based on http://www.vim.org/tips/tip.php?tip_id=329
+function! eclim#common#util#SwapWords()
   " save the last search pattern
   let save_search = @/
 
@@ -72,92 +91,9 @@ function! eclim#common#util#SwapWords() " {{{
   silent! call repeat#set(":call eclim#common#util#SwapWords()\<cr>", v:count)
 endfunction " }}}
 
-function! eclim#common#util#SwapAround(char) " {{{
-  if len(a:char) != 1
-    call eclim#util#EchoError('Arg must be a single character.')
-    return
-  endif
-
-  let pos = getpos('.')
-  let save_search = @/
-  try
-    let lnum = line('.')
-    let line = getline('.')
-    let start_col = 0
-    if line[col('.') - 1] =~ '[(\[{]'
-      let start_col = col('.')
-      normal! %
-    endif
-    let col = col('.')
-    exec 'normal! f' . a:char
-    if col('.') == col
-      call eclim#util#EchoError('Char not found on this line.')
-      return
-    endif
-
-    let delim_col = col('.')
-
-    let [_, end_col] = searchpos('\S', 'b', lnum)
-    if !start_col
-      if line[col('.') - 1] =~ '[)\]}]'
-        normal! %
-        let start_col = col('.')
-      else
-        let [_, start_col] = searchpos('[(\[{' . a:char . ']', 'b', lnum)
-        if start_col == end_col
-          call eclim#util#EchoError('Unable to determine the start of the first block.')
-          return
-        endif
-        let start_col += 1
-      endif
-    endif
-
-    let first = [start_col, end_col]
-
-    call cursor(0, delim_col)
-    let [_, start_col] = searchpos('\S', '', lnum)
-    if start_col == delim_col
-      call eclim#util#EchoError('Could not find item to swap with.')
-      return
-    endif
-    if line[col('.') - 1] =~ '[(\[{]'
-      normal! %
-      let end_col = col('.')
-    else
-      let [_, end_col] = searchpos('[)\]}' . a:char . ']', '', lnum)
-      if start_col == end_col
-        call eclim#util#EchoError('Unable to determine the end of the second block.')
-        return
-      endif
-      let end_col -= 1
-    endif
-
-    let second = [start_col, end_col]
-
-    let first_part = strpart(line, first[0] - 1, first[1] - first[0] + 1)
-    let second_part = strpart(line, second[0] - 1, second[1] - second[0] + 1)
-
-    " replace second with first
-    let prefix = strpart(line, 0, second[0] - 1)
-    let suffix = strpart(line, second[1])
-    let line = prefix . first_part . suffix
-
-    " replace first with second
-    let prefix = strpart(line, 0, first[0] - 1)
-    let suffix = strpart(line, first[1])
-    let line = prefix . second_part . suffix
-
-    call setline('.', line)
-    silent! call repeat#set(
-      \ ":call eclim#common#util#SwapAround(" . string(a:char) . ")\<cr>", v:count)
-  finally
-    call setpos('.', pos)
-    let @/ = save_search
-  endtry
-endfunction " }}}
-
-function! eclim#common#util#Tcd(dir) " {{{
-  " Like vim's :lcd, but tab local instead of window local.
+" Tcd(dir) {{{
+" Like vim's :lcd, but tab local instead of window local.
+function! eclim#common#util#Tcd(dir)
   let t:cwd = fnamemodify(a:dir, ':p')
 
   " initialize the tab cwd for all other tabs if not already set
@@ -201,7 +137,8 @@ function! eclim#common#util#Tcd(dir) " {{{
   augroup END
 endfunction " }}}
 
-function! s:ApplyTcd(honor_lcd) " {{{
+" s:ApplyTcd(honor_lcd) {{{
+function! s:ApplyTcd(honor_lcd)
   if !exists('t:cwd')
     return
   endif
@@ -215,8 +152,9 @@ function! s:ApplyTcd(honor_lcd) " {{{
   endif
 endfunction " }}}
 
-function! eclim#common#util#ReadFile() " {{{
-  " Reads the contents of an archived file.
+" ReadFile() {{{
+" Reads the contents of an archived file.
+function! eclim#common#util#ReadFile()
   let archive = substitute(expand('%'), '\', '/', 'g')
   let command = substitute(s:command_read, '<file>', archive, '')
 
