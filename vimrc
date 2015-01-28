@@ -112,6 +112,21 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
+" javascript concealing characters
+set conceallevel=1
+let g:javascript_conceal_function   = "ƒ"
+let g:javascript_conceal_null       = "ø"
+let g:javascript_conceal_this       = "@"
+let g:javascript_conceal_return     = "⇚"
+let g:javascript_conceal_undefined  = "¿"
+let g:javascript_conceal_NaN        = "ℕ"
+let g:javascript_conceal_prototype  = "¶"
+
+" rust conceal
+let g:rust_conceal=1
+let g:rust_conceal_mod_path=1
+let g:rust_conceal_pub=1
+
 " Relative edit file
 command -nargs=1 Re :e %:p:h/<args>
 command -nargs=1 Rsp :sp %:p:h/<args>
