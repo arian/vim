@@ -122,6 +122,9 @@ let g:javascript_conceal_undefined  = "¿"
 let g:javascript_conceal_NaN        = "ℕ"
 let g:javascript_conceal_prototype  = "¶"
 
+hi Conceal guibg=NONE
+hi Conceal guifg=#66D9EF
+
 " rust conceal
 let g:rust_conceal=1
 let g:rust_conceal_mod_path=1
