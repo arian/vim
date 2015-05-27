@@ -139,7 +139,7 @@ command -nargs=1 Rvsp :vsp %:p:h/<args>
 :command W w
 
 " Syntastic
-let g:syntastic_javascript_checkers = ['jshint', 'jscs']
+let g:syntastic_javascript_checkers = ['jshint', 'jscs', 'eslint']
 let g:syntastic_javascript_jscs_args = "--esnext"
 
 """ Powerline settings
