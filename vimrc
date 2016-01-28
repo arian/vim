@@ -112,6 +112,15 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
+" moving lines up or down
+" http://vim.wikia.com/wiki/Moving_lines_up_or_down#Mappings_to_move_lines
+nnoremap n :m .+1<CR>==
+nnoremap m :m .-2<CR>==
+inoremap n <Esc>:m .+1<CR>==gi
+inoremap m <Esc>:m .-2<CR>==gi
+vnoremap n :m '>+1<CR>gv=gv
+vnoremap m :m '<-2<CR>gv=gv
+
 " javascript concealing characters
 set conceallevel=1
 let g:javascript_conceal_function   = "ƒ"
