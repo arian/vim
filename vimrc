@@ -142,6 +142,11 @@ command -nargs=1 Rvsp :vsp %:p:h/<args>
 let g:syntastic_javascript_checkers = ['jshint', 'jscs', 'eslint']
 let g:syntastic_javascript_jscs_args = "--esnext"
 
+" clang_complete lib
+if isdirectory('/usr/lib/llvm-3.4')
+	let g:clang_library_path='/usr/lib/llvm-3.4/lib'
+endif
+
 """ Powerline settings
 let g:Powerline_stl_path_style = 'short'
 " make sure powerline always is visible
