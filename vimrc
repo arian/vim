@@ -114,12 +114,12 @@ map <right> <nop>
 
 " moving lines up or down
 " http://vim.wikia.com/wiki/Moving_lines_up_or_down#Mappings_to_move_lines
-nnoremap n :m .+1<CR>==
-nnoremap m :m .-2<CR>==
-inoremap n <Esc>:m .+1<CR>==gi
-inoremap m <Esc>:m .-2<CR>==gi
-vnoremap n :m '>+1<CR>gv=gv
-vnoremap m :m '<-2<CR>gv=gv
+" nnoremap n :m .+1<CR>==
+" nnoremap m :m .-2<CR>==
+" inoremap n <Esc>:m .+1<CR>==gi
+" inoremap m <Esc>:m .-2<CR>==gi
+" vnoremap n :m '>+1<CR>gv=gv
+" vnoremap m :m '<-2<CR>gv=gv
 
 " javascript concealing characters
 set conceallevel=1
@@ -148,8 +148,9 @@ command -nargs=1 Rvsp :vsp %:p:h/<args>
 :command W w
 
 " Syntastic
-let g:syntastic_javascript_checkers = ['jshint', 'jscs', 'eslint']
-let g:syntastic_javascript_jscs_args = "--esnext"
+"'jshint', 'jscs',
+let g:syntastic_javascript_checkers = ['eslint']
+" let g:syntastic_javascript_jscs_args = "--esnext"
 
 " clang_complete lib
 if isdirectory('/usr/lib/llvm-3.4')
