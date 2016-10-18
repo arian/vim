@@ -152,6 +152,13 @@ command -nargs=1 Rvsp :vsp %:p:h/<args>
 let g:syntastic_javascript_checkers = ['eslint']
 " let g:syntastic_javascript_jscs_args = "--esnext"
 
+" typescript
+let g:syntastic_typescript_tsc_fname = ''
+let g:tsuquyomi_completion_detail = 1
+let g:tsuquyomi_disable_quickfix = 1
+let g:syntastic_typescript_checkers = ['tslint', 'tsuquyomi']
+autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()<CR>
+
 " clang_complete lib
 if isdirectory('/usr/lib/llvm-3.4')
 	let g:clang_library_path='/usr/lib/llvm-3.4/lib'
