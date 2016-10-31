@@ -159,6 +159,12 @@ let g:tsuquyomi_disable_quickfix = 1
 let g:syntastic_typescript_checkers = ['tslint', 'tsuquyomi']
 autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()<CR>
 
+" elm
+let g:elm_format_autosave = 1
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:elm_syntastic_show_warnings = 1
+
 " clang_complete lib
 if isdirectory('/usr/lib/llvm-3.4')
 	let g:clang_library_path='/usr/lib/llvm-3.4/lib'
