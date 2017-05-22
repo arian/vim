@@ -191,9 +191,6 @@ let g:Powerline_stl_path_style = 'short'
 " make sure powerline always is visible
 set laststatus=2
 
-" gundo
-nnoremap <F5> :GundoToggle<CR>
-
 " execute make
 noremap <Leader>m :w<CR>:!make<CR>
 
