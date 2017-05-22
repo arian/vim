@@ -112,6 +112,9 @@ map <down> <nop>
 map <left> <nop>
 map <right> <nop>
 
+" undo
+nnoremap <F5> :UndotreeToggle<cr>
+
 " moving lines up or down
 " http://vim.wikia.com/wiki/Moving_lines_up_or_down#Mappings_to_move_lines
 " nnoremap n :m .+1<CR>==

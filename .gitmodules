@@ -112,3 +112,6 @@
 [submodule "bundle/neoformat"]
 	path = bundle/neoformat
 	url = https://github.com/sbdchd/neoformat.git
+[submodule "bundle/undotree"]
+	path = bundle/undotree
+	url = https://github.com/mbbill/undotree.git
