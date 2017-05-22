@@ -112,3 +112,6 @@
 [submodule "bundle/elm-vim"]
 	path = bundle/elm-vim
 	url = https://github.com/ElmCast/elm-vim.git
+[submodule "bundle/neoformat"]
+	path = bundle/neoformat
+	url = https://github.com/sbdchd/neoformat.git

@@ -152,12 +152,28 @@ command -nargs=1 Rvsp :vsp %:p:h/<args>
 let g:syntastic_javascript_checkers = ['eslint']
 " let g:syntastic_javascript_jscs_args = "--esnext"
 
+function ESLintFix()
+	execute "!eslint --fix %"
+endfunction
+
+autocmd FileType javascript nmap <buffer> <Leader>f :call ESLintFix()<CR>
+
 " typescript
 let g:syntastic_typescript_tsc_fname = ''
 let g:tsuquyomi_completion_detail = 1
 let g:tsuquyomi_disable_quickfix = 1
 let g:syntastic_typescript_checkers = ['tslint', 'tsuquyomi']
 autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()<CR>
+
+function TSLintFix()
+	silent execute "!tslint --fix %"
+	call SyntasticCheck()
+endfunction
+
+autocmd FileType typescript nmap <buffer> <Leader>f :call TSLintFix()<CR>
+
+" format js
+autocmd BufWritePre *.js Neoformat
 
 " elm
 let g:elm_format_autosave = 1
@@ -210,3 +226,5 @@ augroup BWCCreateDir
 	autocmd!
 	autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
 augroup END
+
+set rtp+=/home/arian/.local/lib/python2.7/site-packages/powerline/bindings/vim
