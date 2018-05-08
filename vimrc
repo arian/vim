@@ -227,4 +227,4 @@ augroup BWCCreateDir
 	autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
 augroup END
 
-set rtp+=/home/arian/.local/lib/python2.7/site-packages/powerline/bindings/vim
+set rtp+=~/.local/lib/python2.7/site-packages/powerline/bindings/vim
